@@ -7,8 +7,14 @@ export class TelegramService {
 
   private readonly botToken = process.env.TELEGRAM_BOT_TOKEN;
   private readonly chatId = process.env.TELEGRAM_CHAT_ID;
+  private readonly isEnabled = process.env.TELEGRAM_ENABLED === 'true'; // 👈 Add this
 
   async sendMessage(message: string) {
+    if (!this.isEnabled) {
+      // 👈 Add this check
+      this.logger.log('Telegram notifications are disabled. Skipping message.');
+      return;
+    }
     try {
       const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
 
