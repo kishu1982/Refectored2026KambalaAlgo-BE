@@ -14,8 +14,9 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
   // =====================================================
   // ⚙️ STRIKE SETTINGS
   // =====================================================
-  private readonly OTM_PERCENT = 0.015; // means 0.25%
-  private readonly STRIKE_STEP = 50; // NIFTY strike interval
+  private readonly OTM_PERCENT = 0.00015; // means 0.25%
+  private readonly STRIKE_STEP: number = 0; // NIFTY strike interval
+  // private readonly STRIKE_STEP: number = 100; // NIFTY strike interval
   // ===============================
   // 📦 INSTRUMENT MASTER
   // ===============================
@@ -185,25 +186,53 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
     spotPrice: number,
     optionType: 'CE' | 'PE',
   ): number {
-    // convert percent to decimal
     const percentValue = this.OTM_PERCENT / 100;
 
     let targetPrice: number;
 
     if (optionType === 'CE') {
-      // CE → above spot
       targetPrice = spotPrice + spotPrice * percentValue;
+    } else {
+      targetPrice = spotPrice - spotPrice * percentValue;
+    }
 
-      // round UP for calls
+    // ✅ STRIKE_STEP = 0 → ATM mode: both CE and PE round to nearest 100
+    if (this.STRIKE_STEP === 0) {
+      return Math.round(targetPrice / 100) * 100;
+    }
+
+    // ✅ STRIKE_STEP = 50 or 100 → OTM mode: CE goes up, PE goes down
+    if (optionType === 'CE') {
       return Math.ceil(targetPrice / this.STRIKE_STEP) * this.STRIKE_STEP;
     } else {
-      // PE → below spot
-      targetPrice = spotPrice - spotPrice * percentValue;
-
-      // round DOWN for puts
       return Math.floor(targetPrice / this.STRIKE_STEP) * this.STRIKE_STEP;
     }
   }
+
+  // old proper working
+  // private calculateOTMStrike(
+  //   spotPrice: number,
+  //   optionType: 'CE' | 'PE',
+  // ): number {
+  //   // convert percent to decimal
+  //   const percentValue = this.OTM_PERCENT / 100;
+
+  //   let targetPrice: number;
+
+  //   if (optionType === 'CE') {
+  //     // CE → above spot
+  //     targetPrice = spotPrice + spotPrice * percentValue;
+
+  //     // round UP for calls
+  //     return Math.ceil(targetPrice / this.STRIKE_STEP) * this.STRIKE_STEP;
+  //   } else {
+  //     // PE → below spot
+  //     targetPrice = spotPrice - spotPrice * percentValue;
+
+  //     // round DOWN for puts
+  //     return Math.floor(targetPrice / this.STRIKE_STEP) * this.STRIKE_STEP;
+  //   }
+  // }
 
   // =====================================================
   // 🔎 FIND NEW OPTION FROM INSTRUMENT MASTER
