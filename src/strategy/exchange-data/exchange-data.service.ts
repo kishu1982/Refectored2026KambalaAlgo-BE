@@ -17,6 +17,7 @@ import { Cron } from '@nestjs/schedule';
 export class ExchangeDataService implements OnModuleInit {
   private readonly logger = new Logger(ExchangeDataService.name);
   private readonly MAGIC_NUMBER: string; // diclaring magic number
+  private clientUid = ''; // for future use if needed in filter or anywhere else, can be set from env or config
 
   // ⭐ queue lock
   private syncPromise: Promise<void> = Promise.resolve();
@@ -50,6 +51,7 @@ export class ExchangeDataService implements OnModuleInit {
     }
 
     this.MAGIC_NUMBER = magic;
+    this.clientUid = this.configService.get<string>('NOREN_CLIENT_ID') || '';
   }
 
   // --------------------------------
@@ -84,6 +86,15 @@ export class ExchangeDataService implements OnModuleInit {
       });
 
     return this.syncPromise;
+  }
+
+  // --------------------------------
+  // FOR GIVING CLINET ID ON WHICH ALGO IS RUNNING
+  // --------------------------------
+  getClientUid() {
+    const uid = this.clientUid;
+    console.log('Client UID requested:', uid); // 🔥 DEBUG
+    return { AlgoId: this.clientUid };
   }
 
   // --------------------------------

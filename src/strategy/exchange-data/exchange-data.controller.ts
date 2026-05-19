@@ -6,6 +6,14 @@ export class ExchangeDataController {
   constructor(private readonly exchangeDataService: ExchangeDataService) {}
 
   // --------------------------------
+  // client id
+  // --------------------------------
+  // send client user id which algo is running, can be used in filter or anywhere else in service, currently not used but can be useful in future
+  @Get('algoid')
+  GetClientUid() {
+    return this.exchangeDataService.getClientUid();
+  }
+  // --------------------------------
   // ORDERS
   // --------------------------------
 
