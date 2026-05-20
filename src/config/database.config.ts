@@ -3,8 +3,8 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 const baseDbName = process.env.MONGO_DB_NAME;
-const norenAccId = process.env.NOREN_ACC_ID;
-
+const norenAccId = process.env.NOREN_CLIENT_ID;
+// const norenAccId = process.env.NOREN_ACC_ID;
 
 if (!baseDbName || !norenAccId) {
   throw new Error(
