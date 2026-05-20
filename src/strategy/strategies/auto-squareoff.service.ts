@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { OrdersService } from 'src/orders/orders.service';
 import { ConfigService } from '@nestjs/config';
 import { MarketService } from 'src/market/market.service';
+import { ExchangeDataService } from './../exchange-data/exchange-data.service';
 
 @Injectable()
 export class AutoSquareOffService {
@@ -45,6 +46,7 @@ private readonly SQUARE_OFF_END_TIME = undefined; // in case given undefined the
     private readonly orderService: OrdersService,
     private readonly ConfigService: ConfigService,
     private readonly marketService: MarketService, // ✅ ADD THIS
+    private readonly exchangeDataService: ExchangeDataService, // ✅ ADD THIS
   ) {
     this.activateAutoSquareOff =
       this.ConfigService.get<string>('ACTIVATE_AUTO_SQUARE_OFF', 'false') ===
@@ -133,16 +135,33 @@ private readonly SQUARE_OFF_END_TIME = undefined; // in case given undefined the
       let hasOpenPositions = true;
 
       while (hasOpenPositions) {
-        const netPositions = await this.orderService.getNetPositions();
+        // const netPositions = await this.orderService.getNetPositions();
 
-        if (!netPositions?.data || !Array.isArray(netPositions.data)) {
-          this.logger.warn('⚠️ No net positions found');
+        // if (!netPositions?.data || !Array.isArray(netPositions.data)) {
+        //   this.logger.warn('⚠️ No net positions found');
+        //   break;
+        // }
+
+        // hasOpenPositions = false;
+
+        // new filtered net positions from exchange data service
+        const netPositionsResponse =
+          this.exchangeDataService.getFilteredNetPositions();
+
+        if (
+          !netPositionsResponse?.data ||
+          !Array.isArray(netPositionsResponse.data)
+        ) {
+          this.logger.warn('⚠️ No filtered net positions found');
           break;
         }
 
+        const netPositions = netPositionsResponse.data;
+
         hasOpenPositions = false;
 
-        for (const pos of netPositions.data) {
+        // for (const pos of netPositions.data) {
+        for (const pos of netPositions) {
           const netQty = Number(pos.netqty);
 
           if (!netQty || netQty === 0) continue;
