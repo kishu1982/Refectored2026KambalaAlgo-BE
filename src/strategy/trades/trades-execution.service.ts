@@ -540,6 +540,19 @@ Any qty → qty 0	Close all	PLACED
         price = Number(quote.bp5); // best buy price
       }
 
+      // return isNaN(price) ? undefined : price;
+      if (isNaN(price)) {
+        return undefined;
+      }
+
+      const BUFFER_PERCENT = 0.05; // 5% buffer to ensure fill
+
+      if (side === 'BUY') {
+        price = price * (1 + BUFFER_PERCENT); // pay more to guarantee fill
+      } else {
+        price = price * (1 - BUFFER_PERCENT); // accept less to guarantee fill
+      }
+
       return isNaN(price) ? undefined : price;
     } catch (err) {
       this.logger.error('getLimitPrice error', err?.stack || err);
