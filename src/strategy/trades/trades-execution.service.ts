@@ -546,6 +546,7 @@ Any qty → qty 0	Close all	PLACED
       }
 
       const BUFFER_PERCENT = 0.05; // 5% buffer to ensure fill
+      const TICK_SIZE = 0.05; // change to 0.10 if instrument requires it
 
       if (side === 'BUY') {
         price = price * (1 + BUFFER_PERCENT); // pay more to guarantee fill
@@ -553,11 +554,22 @@ Any qty → qty 0	Close all	PLACED
         price = price * (1 - BUFFER_PERCENT); // accept less to guarantee fill
       }
 
+      price = this.roundToTick(price, TICK_SIZE); // tick size round off
+
       return isNaN(price) ? undefined : price;
     } catch (err) {
       this.logger.error('getLimitPrice error', err?.stack || err);
       return undefined;
     }
+  }
+
+  // =====================================================
+  // 🚀 Tick size round off
+  // =====================================================
+  private roundToTick(price: number, tickSize: number): number {
+    const rounded = Math.round(price / tickSize) * tickSize;
+    // fix floating point artifacts like 123.45000000000001
+    return Math.round(rounded * 100) / 100;
   }
 
   //
