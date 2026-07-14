@@ -44,11 +44,11 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
   // 📊 MARKET INDEX MASTER (for later checking)
   // =====================================================
   private readonly indexMaster = [
-    // {
-    //   exchange: 'NSE',
-    //   symbol: 'NIFTY',
-    //   token: 26000,
-    // },
+    {
+      exchange: 'NSE',
+      symbol: 'NIFTY',
+      token: 26000,
+    },
     {
       exchange: 'BSE',
       symbol: 'SENSEX',
@@ -59,11 +59,11 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
       symbol: 'BANKNIFTY',
       token: 26009,
     },
-    {
-      exchange: 'NFO',
-      symbol: 'NIFTY',
-      token: 61093,
-    },
+    // {
+    //   exchange: 'NFO',
+    //   symbol: 'NIFTY',
+    //   token: 61093,
+    // },
   ];
 
   constructor(
