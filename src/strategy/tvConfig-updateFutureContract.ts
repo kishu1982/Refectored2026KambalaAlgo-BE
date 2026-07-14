@@ -44,11 +44,11 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
   // 📊 MARKET INDEX MASTER (for later checking)
   // =====================================================
   private readonly indexMaster = [
-    {
-      exchange: 'NSE',
-      symbol: 'NIFTY',
-      token: 26000,
-    },
+    // {
+    //   exchange: 'NSE',
+    //   symbol: 'NIFTY',
+    //   token: 26000,
+    // },
     {
       exchange: 'BSE',
       symbol: 'SENSEX',
@@ -58,6 +58,11 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
       exchange: 'NSE',
       symbol: 'BANKNIFTY',
       token: 26009,
+    },
+    {
+      exchange: 'NFO',
+      symbol: 'NIFTY',
+      token: 61093,
     },
   ];
 
@@ -188,6 +193,16 @@ export class TvConfigUpdateFutureContract implements OnModuleInit {
     optionType: 'CE' | 'PE',
   ): number {
     const percentValue = this.OTM_PERCENT / 100;
+
+    // ✅ When OTM_PERCENT = 0 → CE and PE must land on the SAME strike (ATM, no gap)
+    if (this.OTM_PERCENT === 0) {
+      return Math.round(spotPrice / this.STRIKE_STEP) * this.STRIKE_STEP;
+    }
+
+    // ✅ STRIKE_STEP = 0 safeguard → both CE and PE round to nearest 100
+    if (this.STRIKE_STEP === 0) {
+      return Math.round(spotPrice / 100) * 100;
+    }
 
     let targetPrice: number;
 
