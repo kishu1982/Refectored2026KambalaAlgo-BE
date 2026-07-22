@@ -296,6 +296,7 @@ export class TradesExecutionService {
         return;
       }
 
+      /*
       for (const trade of pendingTrades) {
         try {
           const exchange = trade.exchange;
@@ -312,13 +313,41 @@ export class TradesExecutionService {
           }
 
           await this.executeSingleTrade(trade);
-        } catch (err) {
+        }
+        catch (err) {
           this.logger.error(
             `Trade execution failed | tradeId=${trade._id}`,
             err?.stack,
           );
         }
       }
+
+      
+      */
+
+      //using promise all to place trades togeather
+      await Promise.allSettled(
+        pendingTrades.map(async (trade) => {
+          try {
+            const exchange = trade.exchange;
+            if (
+              this.TIME_RESTRICTED_EXCHANGES.has(exchange) &&
+              !this.isWithinTradingTime()
+            ) {
+              this.logger.warn(
+                `⏰ Trading time over. Skipping trade for ${exchange}|${trade.token}|${trade.symbol}`,
+              );
+              return;
+            }
+            await this.executeSingleTrade(trade);
+          } catch (err) {
+            this.logger.error(
+              `Trade execution failed | tradeId=${trade._id}`,
+              err?.stack,
+            );
+          }
+        }),
+      );
     } finally {
       this.isExecuting = false; // 🔐 release lock
     }
